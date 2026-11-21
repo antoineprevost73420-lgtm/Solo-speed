@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#09111f">
+<title>CHEMIN · SPEED CONTROL</title>
+<style>
+:root{color-scheme:dark;--bg:#080f1c;--cy:#39c5ff;--mi:#38f0c2;--or:#ffbd63;--mu:#8ea2bc}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#142a46 0,#080f1c 55%);color:#f5f8ff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;padding:calc(env(safe-area-inset-top) + 14px) 12px calc(env(safe-area-inset-bottom) + 20px)}
+.app{max-width:620px;margin:auto}a.back{color:var(--cy);font-size:11px;font-weight:900;letter-spacing:1px;text-decoration:none}
+h1{font-size:17px;letter-spacing:1px;margin:10px 0 4px}.names{font-size:11px;color:var(--mu);line-height:1.6}.names b{color:#fff}
+.views{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}.v{background:#111d30;border:1px solid #ffffff10;border-radius:14px;padding:6px}.v small{display:block;text-align:center;font-size:9px;font-weight:900;letter-spacing:1px;color:var(--mu);margin:2px 0 4px}svg{width:100%;height:auto;display:block}
+.cap{background:#17263d;border-radius:12px;padding:11px;text-align:center;min-height:62px}.cap strong{display:block;font-size:15px}.cap span{font-size:11px;color:var(--mu)}
+.ctl{display:flex;gap:10px;align-items:center;margin-top:10px}button{border:0;border-radius:11px;padding:12px 16px;font:inherit;font-weight:900;font-size:12px;background:linear-gradient(100deg,var(--cy),var(--mi));color:#04111b}input{flex:1;accent-color:var(--cy)}
+.leg{display:flex;gap:14px;justify-content:center;font-size:10px;color:var(--mu);margin-top:12px}.leg i{display:inline-block;width:9px;height:9px;border-radius:9px;margin-right:5px}
+.note{font-size:10px;color:var(--mu);line-height:1.5;margin-top:14px}
+</style></head><body><main class="app">
+<a class="back" href="index.html">← RETOUR AU TIRAGE</a>
+<h1 id="t">CHEMIN</h1><div class="names" id="n"></div>
+<div class="views">
+<div class="v"><small>VUE DE CÔTÉ · ANNEAU</small>
+<svg viewBox="0 0 200 150"><rect x="0" y="132" width="200" height="4" fill="#263b56"/><path id="so" fill="none" stroke="#ffffff22" stroke-dasharray="3 4"/><circle cx="100" cy="62" r="7" fill="none" stroke="#38f0c2" stroke-width="3"/><g id="sd" stroke="#39c5ff" fill="none" stroke-width="2.2" stroke-linecap="round"><g id="sm"><circle id="sh" cy="-10" r="3" fill="#39c5ff"/><path d="M0-6V4M-6-2H6M0 4L-4 11M0 4L4 11"/></g></g><text id="st" x="100" y="146" text-anchor="middle" fill="#ffbd63" font-size="11" font-weight="900"></text></svg></div>
+<div class="v"><small>VUE DU DESSUS</small>
+<svg viewBox="-110 -110 220 220"><circle r="100" fill="#0d1a2b" stroke="#39c5ff55" stroke-width="2"/>
+<line x1="0" y1="-100" x2="0" y2="100" stroke="#ffffff22"/><line x1="0" y1="0" x2="100" y2="0" stroke="#ffffff22"/><line x1="-100" y1="0" x2="0" y2="0" stroke="#ffffff22"/>
+<circle cx="0" cy="-100" r="5" fill="#38f0c2"/><circle cx="0" cy="100" r="5" fill="#39c5ff"/><circle cx="100" cy="0" r="5" fill="#fff"/>
+<path d="M-96.9 -24A100 100 0 0 0 -96.9 24" stroke="#fff" stroke-width="7" fill="none"/>
+<text transform="translate(-84 0) rotate(-90)" text-anchor="middle" fill="#8ea2bc" font-size="8">PORTE</text>
+<text x="8" y="-88" fill="#38f0c2" font-size="8">DÉPART</text>
+<path id="to" fill="none" stroke="#ffffff22" stroke-dasharray="3 4"/><circle id="td" r="7" fill="#39c5ff"/><text id="tt" x="0" y="-60" text-anchor="middle" fill="#ffbd63" font-size="13" font-weight="900"></text></svg></div>
+</div>
+<div class="cap"><strong id="ph"></strong><span id="ds"></span></div>
+<div class="ctl"><button id="pl">PAUSE</button><input id="r" type="range" min="0" max="1000" value="0"></div>
+<div class="leg"><span><i style="background:#39c5ff"></i>HEAD UP</span><span><i style="background:#ffbd63"></i>HEAD DOWN</span></div>
+<p class="note">Snake d'après tes explications (quarts 1 à 4). Verticals, Mixeurs et sortie : encore provisoires.</p>
+</main>
+<script>
+const q=new URLSearchParams(location.search);
+const S={"HD Snake":["D",""],"HU Snake":["U",""],"HU Snake 360":["U","360"],"HD Snake 360":["D","360"],"HU Switch":["U","OUT"],"HD Switch":["D","OUT"],"HU Mix":["U","MIX"],"HD Mix":["D","MIX"]};
+const V={"Classic":["DDUU","180"],"Crossing Classic":["DDUU","180"],"Layout":["DDUU",""],"HD 360":["DDDD","360"],"HU 360":["DDUU","360"],"Butterfly":["DDDD",""],"Bottom Loop":["DDDD",""],"Crossing Layout":["DDUU",""]};
+const M={"HD Circle":["DDD",0],"HU Circle":["DUU",0],"Mix Circle":["DUD",0],"Reverse Mix Circle":["DUD",0],"HU Inface":["DUU",1],"HD Inface":["DDD",1],"HD Shuffler":["DDD",1],"HU Shuffler":["DUU",1],"Mix Shuffler":["DUD",1]};
+const sn=q.get("s")in S?q.get("s"):"HD Snake",vn=q.get("v")in V?q.get("v"):"Classic",mn=q.get("m")in M?q.get("m"):"HD Circle";
+document.getElementById("n").innerHTML=`Snake <b>${sn}</b> · Vertical <b>${vn}</b> · Mixeur <b>${mn}</b>`;
+const pl=(p,u)=>{const n=p.length-1,k=Math.min(n-1,Math.floor(u*n)),f=u*n-k,g=i=>p[Math.max(0,Math.min(n,i))],a=g(k-1),b=g(k),c=g(k+1),d=g(k+2);return[0,1].map(i=>.5*(2*b[i]+(-a[i]+c[i])*f+(2*a[i]-5*b[i]+4*c[i]-d[i])*f*f+(-a[i]+3*b[i]-3*c[i]+d[i])*f*f*f))};
+const Q={0:[0,0],1:[-50,-50],2:[50,-50],3:[-50,50],4:[50,50]},seq=a=>a.map(k=>Q[k]);
+const SU=seq([2,1,0,4,3,1,2,0,3,4,2]),SD=seq([2,1,0,4,3,1,2,0,3,4,2,1,3]),ENT=[[-96,0],[-40,-2],[10,-18],[50,-50]];
+const vtop=u=>{const c=28*Math.cos(u*4*Math.PI);return S[sn][0]=="U"?[c,-72]:[-c,72]};
+const SP=S[sn][0]=="U"?SU:SD,UC=[2,7].map(i=>i/(SP.length-1)),ve=vtop(1),EXI=[ve,[0,ve[1]*.86],[-50,ve[1]*.5],[-96,0]];
+const SHF=[[0,-70],[42,-35],[0,0],[-42,35],[0,70],[42,35],[0,0]];
+const circ=u=>[-38*Math.sin(u*6.283),-38+38*Math.cos(u*6.283)];
+const ori=(s,u)=>s[Math.min(s.length-1,Math.floor(u*s.length))];
+const sd=V[vn],vt=(th)=>[100-52*Math.cos(th),62-40*Math.sin(th)];
+const ph=[
+{n:"ENTRÉE",d:2,f:u=>({t:pl(ENT,u),o:S[sn][0],x:"Entre et traverse le plan des lignes de côté"})},
+{n:"SNAKE · "+sn,d:8,f:u=>{const [b,k]=S[sn],mid=u>UC[0]&&u<UC[1],o=k=="MIX"&&mid?(b=="U"?"D":"U"):b,nr=UC.some(c=>Math.abs(u-c)<.04);return{t:pl(SP,u),o,g:k=="360"&&nr?"360°":(k=="OUT"&&mid?"OUTFACE":""),x:"6 passages de ligne de côté, 3 de ligne centrale"}}},
+{n:"VERTICAL · "+vn,d:5,f:u=>{const th=u*4*Math.PI,h=Math.floor(u*4);return{t:vtop(u),s:vt(th),o:ori(sd[0],u),g:sd[1]&&h%2==0&&(h>1||sd[1]=="180"||sd[1]=="360")&&(sd[1]=="180"||h==2)?sd[1]:"",x:"2 tours autour de l'anneau, 4 passages de ligne de côté"}}},
+...[1,2].map(k=>({n:"MIXEUR "+k+"/2 · "+mn,d:4,f:u=>({t:M[mn][1]?pl(SHF,u):circ(u),o:ori(M[mn][0],u),x:M[mn][1]?"Shuffler : 3 demi-cercles par le centre":"Cercle : 360° de carving"})})),
+{n:"SORTIE",d:2.5,f:u=>({t:pl(EXI,u),o:"D",x:"Autour de l'anneau, 2 passages, sortie par la porte"})}
+];
+const tot=ph.reduce((a,p)=>a+p.d,0);
+const path=(g,N=60)=>{let s="";for(let i=0;i<=N;i++){const [x,y]=g(i/N);s+=(i?"L":"M")+x.toFixed(1)+" "+y.toFixed(1)}return s};
+const $=id=>document.getElementById(id);
+$("so").setAttribute("d",path(u=>vt(u*4*Math.PI)));
+let ang=0,t0=0,play=true,last=performance.now();
+function at(T){let a=0;for(const p of ph){if(T<=a+p.d||p===ph[ph.length-1])return[p,(T-a)/p.d];a+=p.d}}
+function draw(T){
+ const [p,u]=at(Math.min(T,tot-1e-6)),r=p.f(Math.max(0,Math.min(1,u))),col=r.o=="U"?"#39c5ff":"#ffbd63",i=ph.indexOf(p);if(i>0&&u<.12){const e=ph[i-1].f(1).t,k=Math.max(0,u)/.12;r.t=[e[0]+(r.t[0]-e[0])*k,e[1]+(r.t[1]-e[1])*k]}
+ $("td").setAttribute("transform",`translate(${r.t[0]} ${r.t[1]})`);$("td").setAttribute("fill",col);
+ const s=r.s||[100+52,62];
+ if(r.s){$("sd").setAttribute("transform",`translate(${s[0]} ${s[1]}) scale(1.15)`);$("sd").style.opacity=1}else $("sd").style.opacity=.15;
+ $("sd").setAttribute("stroke",col);$("sh").setAttribute("fill",col);ang+=((r.o=="U"?0:180)-ang)*.2;$("sm").setAttribute("transform","rotate("+ang+")");$("tt").textContent=r.g||"";$("st").textContent=r.g||"";
+ $("ph").textContent=p.n;$("ds").textContent=(r.o=="U"?"TÊTE EN HAUT · ":"TÊTE EN BAS · ")+r.x;
+ $("to").setAttribute("d",({"ENTRÉE":path(u=>pl(ENT,u)),"SORTIE":path(u=>pl(EXI,u))}[p.n])||(p.n[0]=="S"&&p.n[1]=="N"?path(u=>pl(SP,u)):p.n[0]=="V"?path(vtop):path(u=>M[mn][1]?pl(SHF,u):circ(u))));
+ $("r").value=T/tot*1000;
+}
+function loop(n){const dt=(n-last)/1000;last=n;if(play){t0=(t0+dt)%tot}draw(t0);requestAnimationFrame(loop)}
+$("pl").onclick=()=>{play=!play;$("pl").textContent=play?"PAUSE":"LECTURE"};
+$("r").oninput=e=>{play=false;$("pl").textContent="LECTURE";t0=e.target.value/1000*tot};
+requestAnimationFrame(loop);
+</script></body></html>
